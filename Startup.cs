@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using AutoWrapper;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
@@ -71,6 +72,8 @@ namespace ProcessPension
             app.UseHttpsRedirection();
 
             app.UseRouting();
+
+            app.UseApiResponseAndExceptionWrapper();
 
             loggerFactory.AddLog4Net();
 

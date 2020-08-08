@@ -16,6 +16,7 @@ namespace ProcessPension
         /// Dependency Injection
         /// </summary>
         private IConfiguration configuration;
+        static readonly log4net.ILog _log4net = log4net.LogManager.GetLogger(typeof(PensionDetailCall));
         public PensionDetailCall(IConfiguration iConfig)
         {
             configuration = iConfig;
@@ -25,10 +26,10 @@ namespace ProcessPension
         /// </summary>
         /// <param name="aadhar"></param>
         /// <returns>value for calculations and client input</returns>
-        public HttpResponseMessage CallPensionDetail(string aadhar)
+        public HttpResponseMessage PensionDetail(string aadhar)
         {
             PensionDetailCall banktype = new PensionDetailCall(configuration);
-            ClientInput res = new ClientInput();
+            ProcessPensionInput res = new ProcessPensionInput();
             HttpResponseMessage response = new HttpResponseMessage();
             string uriConn = configuration.GetValue<string>("MyUriLink:UriLink");
             using (var client = new HttpClient())
@@ -41,41 +42,53 @@ namespace ProcessPension
                     response = client.GetAsync("api/PensionerDetail/" + aadhar).Result;
                 }
                 catch(Exception e)
-                { response = null; }
+                {
+                    _log4net.Error("Exception Occured" + e);
+                    return null; 
+                }
             }
             return response;
         }
-
-
-
-        public ClientInput GetClientInfo(string aadhar)
+        /// <summary>
+        /// Getting the Values from Process Management Portal
+        /// </summary>
+        /// <param name="aadhar"></param>
+        /// <returns></returns>
+        public ProcessPensionInput GetClientInfo(string aadhar)
         {
-            ClientInput res = new ClientInput();
-            HttpResponseMessage response = CallPensionDetail(aadhar);
+            ResultforProcessPensionInput res = new ResultforProcessPensionInput();
+            HttpResponseMessage response = PensionDetail(aadhar);
             if (response == null)
             {
                 res = null;
-                return res;
+                return null;
             }
             string responseValue = response.Content.ReadAsStringAsync().Result;
-            res = JsonConvert.DeserializeObject<ClientInput>(responseValue);
-
-            return res;
+            res = JsonConvert.DeserializeObject<ResultforProcessPensionInput>(responseValue);
+            if(res==null)
+            {
+                return null;
+            }
+            return res.result;
         }
-
-
+        /// <summary>
+        /// Getting the values for calculation
+        /// </summary>
+        /// <param name="aadhar"></param>
+        /// <returns>Values required for calculation</returns>
         public ValueforCalCulation GetCalculationValues(string aadhar)
         {
-            ValueforCalCulation res = new ValueforCalCulation();
-            HttpResponseMessage response = CallPensionDetail(aadhar);
+            ResultforValueCalculation res = new ResultforValueCalculation();
+            HttpResponseMessage response = PensionDetail(aadhar);
             if (response == null)
             {
                 res = null;
-                return res;
+                return res.result;
             }
             string responseValue = response.Content.ReadAsStringAsync().Result;
-            res = JsonConvert.DeserializeObject<ValueforCalCulation>(responseValue);
-            return res;
+            res = JsonConvert.DeserializeObject<ResultforValueCalculation>(responseValue);
+
+            return res.result;
         }
 
     }

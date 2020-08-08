@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace ProcessPension
 {
-    public class MVCClientOutput
+    public class PensionDetail
     {
         public string name { get; set; }
         public double pensionAmount { get; set; }
@@ -14,7 +14,6 @@ namespace ProcessPension
         public string aadharNumber { get; set; }
         public DateTime dateOfBirth { get; set; }
         public PensionType pensionType { get; set; }
-        public HttpResponseMessage message { get; set; }
         public int bankType { get; set; }
         public int status { get; set; }
     }
